@@ -13,13 +13,25 @@ class ServerStats(user: String, hostname: String, commandBuilder: CommandBuilder
 
         storageDetails = if (command.getStatusCode() != 0) {
             println(command.getStdErr())
-            StorageDetails("Error")
+            StorageDetails("", "")
         } else {
-            StorageDetails(getStorageSize(command.getStdOut()))
+            val output = command.getStdOut()
+            StorageDetails(
+                getStorageSize(output),
+                getStorageUsed(output)
+            )
         }
     }
 
     private fun getStorageSize(output: String): String {
+        return getStorageValue(output, 0)
+    }
+
+    private fun getStorageUsed(output: String): String {
+        return getStorageValue(output, 1)
+    }
+
+    private fun getStorageValue(output: String, index: Int): String {
         val lines = output.lines()
         val storageIndex = lines.indexOf("Storage:")
 
@@ -30,7 +42,7 @@ class ServerStats(user: String, hostname: String, commandBuilder: CommandBuilder
             .drop(1)
             .firstOrNull()
             ?.split("\t")
-            ?.getOrNull(0)
+            ?.getOrNull(index)
             ?: ""
     }
 }
