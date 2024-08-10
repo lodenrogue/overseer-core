@@ -1,3 +1,6 @@
 package com.arkvis.overseer.server.stats
 
-data class Memory(val total: String)
+data class Memory(
+    val total: String,
+    val used: String
+)
