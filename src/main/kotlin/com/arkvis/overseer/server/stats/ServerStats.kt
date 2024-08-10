@@ -1,17 +1,54 @@
 package com.arkvis.overseer.server.stats
 
+import com.arkvis.overseer.server.Command
 import com.arkvis.overseer.server.CommandBuilder
 
 class ServerStats(user: String, hostname: String, commandBuilder: CommandBuilder) {
 
     val storage: Storage
+    val memory: Memory
 
     init {
         val commands = arrayOf("ssh", "$user@$hostname", "PATH=\$PATH:/home/$user/bin; stats")
         val command = commandBuilder.build(commands)
         command.run()
 
-        storage = if (command.getStatusCode() != 0) {
+        storage = getStorage(command)
+        memory = getMemory(command)
+    }
+
+    private fun getMemory(command: Command): Memory {
+        return if (command.getStatusCode() != 0) {
+            println(command.getStdErr())
+            Memory("")
+        } else {
+            val output = command.getStdOut()
+            Memory(
+                getMemoryTotal(output)
+            )
+        }
+    }
+
+    private fun getMemoryTotal(output: String): String {
+        return getMemoryValue(output, 1)
+    }
+
+    private fun getMemoryValue(output: String, index: Int): String {
+        val lines = output.lines()
+        val storageIndex = lines.indexOf("Memory:")
+
+        if (storageIndex == -1) return ""
+
+        return lines.drop(storageIndex + 1)
+            .dropWhile { !it.startsWith("Mem:") }
+            .firstOrNull()
+            ?.split("\t")
+            ?.getOrNull(index)
+            ?: ""
+    }
+
+    private fun getStorage(command: Command): Storage {
+        return if (command.getStatusCode() != 0) {
             println(command.getStdErr())
             Storage("", "", "", "")
         } else {
