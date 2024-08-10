@@ -1,4 +1,6 @@
-package com.arkvis.overseer.server
+package com.arkvis.overseer.server.stats
+
+import com.arkvis.overseer.server.CommandBuilder
 
 class ServerStats(user: String, hostname: String, commandBuilder: CommandBuilder) {
 
