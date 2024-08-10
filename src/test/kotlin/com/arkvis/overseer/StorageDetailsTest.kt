@@ -19,4 +19,11 @@ class StorageDetailsTest {
         val storageDetails = server.getStats().storageDetails
         assertEquals("23G", storageDetails.used)
     }
+
+    @Test
+    fun testStorageAvailable() {
+        val server = Server("user", "localhost", TestCommandBuilder())
+        val storageDetails = server.getStats().storageDetails
+        assertEquals("414G", storageDetails.available)
+    }
 }
