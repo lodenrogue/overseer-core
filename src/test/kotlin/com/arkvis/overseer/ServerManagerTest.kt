@@ -1,5 +1,6 @@
 package com.arkvis.overseer
 
+import com.arkvis.overseer.server.Server
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -17,7 +18,7 @@ class ServerManagerTest {
     @OptIn(ExperimentalPathApi::class)
     @BeforeEach
     fun setUp() {
-        serverRepository = FileServerRepository(TEST_SERVERS_FILE_LOCATION)
+        serverRepository = FileServerRepository(TEST_SERVERS_FILE_LOCATION, TestCommandBuilder())
         serverManager = ServerManager(serverRepository)
 
         Path(TEST_SERVERS_FILE_LOCATION).deleteRecursively()
@@ -37,7 +38,7 @@ class ServerManagerTest {
 
     @Test
     fun testReturnOneServer() {
-        val server = Server("TEST_USER", "TEST_SERVER")
+        val server = Server("TEST_USER", "TEST_SERVER", TestCommandBuilder())
         serverManager.registerServer(server)
 
         val servers = serverManager.getServers()
@@ -48,8 +49,8 @@ class ServerManagerTest {
 
     @Test
     fun testReturnMultipleServers() {
-        val server1 = Server("TEST_USER_1", "TEST_SERVER_1")
-        val server2 = Server("TEST_USER_2", "TEST_SERVER_2")
+        val server1 = Server("TEST_USER_1", "TEST_SERVER_1", TestCommandBuilder())
+        val server2 = Server("TEST_USER_2", "TEST_SERVER_2", TestCommandBuilder())
 
         serverManager.registerServer(server1)
         serverManager.registerServer(server2)
@@ -63,6 +64,8 @@ class ServerManagerTest {
         assertEquals(server2.user, servers[1].user)
         assertEquals(server2.hostname, servers[1].hostname)
     }
+
+    // TODO test remove server
 
     companion object {
         private const val TEST_SERVERS_FILE_LOCATION = "test_servers"

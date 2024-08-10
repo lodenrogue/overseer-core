@@ -1,10 +1,13 @@
 package com.arkvis.overseer
 
+import com.arkvis.overseer.server.CommandBuilder
+import com.arkvis.overseer.server.Server
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.*
 
-class FileServerRepository(private val location: String) : ServerRepository {
+class FileServerRepository(private val location: String, private val commandBuilder: CommandBuilder) :
+    ServerRepository {
 
     private val path = Path(location)
 
@@ -14,7 +17,7 @@ class FileServerRepository(private val location: String) : ServerRepository {
         if (path.isDirectory()) {
             path.listDirectoryEntries()
                 .filter { entry -> entry.isRegularFile() }
-                .forEach { entry -> servers.add(Server(getUser(entry), getHostname(entry))) }
+                .forEach { entry -> servers.add(Server(getUser(entry), getHostname(entry), commandBuilder)) }
         }
         return servers.toList()
     }
