@@ -13,13 +13,14 @@ class ServerStats(user: String, hostname: String, commandBuilder: CommandBuilder
 
         storageDetails = if (command.getStatusCode() != 0) {
             println(command.getStdErr())
-            StorageDetails("", "", "")
+            StorageDetails("", "", "", "")
         } else {
             val output = command.getStdOut()
             StorageDetails(
                 getStorageSize(output),
                 getStorageUsed(output),
-                getStorageAvailable(output)
+                getStorageAvailable(output),
+                getStoragePercentUsed(output)
             )
         }
     }
@@ -34,6 +35,10 @@ class ServerStats(user: String, hostname: String, commandBuilder: CommandBuilder
 
     private fun getStorageAvailable(output: String): String {
         return getStorageValue(output, 2)
+    }
+
+    private fun getStoragePercentUsed(output: String): String {
+        return getStorageValue(output, 3)
     }
 
     private fun getStorageValue(output: String, index: Int): String {
