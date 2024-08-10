@@ -7,6 +7,7 @@ class ServerStats(user: String, hostname: String, commandBuilder: CommandBuilder
 
     val storage: Storage
     val memory: Memory
+    val battery: Battery
 
     init {
         val commands = arrayOf("ssh", "$user@$hostname", "PATH=\$PATH:/home/$user/bin; stats")
@@ -15,6 +16,30 @@ class ServerStats(user: String, hostname: String, commandBuilder: CommandBuilder
 
         storage = getStorage(command)
         memory = getMemory(command)
+        battery = getBattery(command)
+    }
+
+    private fun getBattery(command: Command): Battery {
+        return if (command.getStatusCode() != 0) {
+            println(command.getStdErr())
+            Battery("")
+        } else {
+            val output = command.getStdOut()
+            Battery(
+                getBatteryPercentCharged(output)
+            )
+        }
+    }
+
+    private fun getBatteryPercentCharged(output: String): String {
+        val lines = output.lines()
+        val batteryIndex = lines.indexOf("Battery:")
+
+        if (batteryIndex == -1) return ""
+
+        return lines.drop(batteryIndex + 1)
+            .firstOrNull()
+            ?: ""
     }
 
     private fun getMemory(command: Command): Memory {
@@ -45,11 +70,11 @@ class ServerStats(user: String, hostname: String, commandBuilder: CommandBuilder
 
     private fun getMemoryValue(output: String, index: Int): String {
         val lines = output.lines()
-        val storageIndex = lines.indexOf("Memory:")
+        val memoryIndex = lines.indexOf("Memory:")
 
-        if (storageIndex == -1) return ""
+        if (memoryIndex == -1) return ""
 
-        return lines.drop(storageIndex + 1)
+        return lines.drop(memoryIndex + 1)
             .dropWhile { !it.startsWith("Mem:") }
             .firstOrNull()
             ?.split("\t")
