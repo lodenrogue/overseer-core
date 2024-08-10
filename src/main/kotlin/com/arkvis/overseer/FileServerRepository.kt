@@ -1,6 +1,7 @@
 package com.arkvis.overseer
 
 import java.nio.file.Files
+import java.nio.file.Path
 import kotlin.io.path.*
 
 class FileServerRepository(private val location: String) : ServerRepository {
@@ -13,7 +14,7 @@ class FileServerRepository(private val location: String) : ServerRepository {
         if (path.isDirectory()) {
             path.listDirectoryEntries()
                 .filter { entry -> entry.isRegularFile() }
-                .forEach { entry -> servers.add(Server(entry.readText())) }
+                .forEach { entry -> servers.add(Server(getUser(entry), getHostname(entry))) }
         }
         return servers.toList()
     }
@@ -22,6 +23,15 @@ class FileServerRepository(private val location: String) : ServerRepository {
         if (!path.isDirectory()) {
             path.createDirectory()
         }
-        Files.write(Path(location, server.hostname), server.hostname.toByteArray())
+        val content = "${server.user}:${server.hostname}"
+        Files.write(Path(location, server.hostname), content.toByteArray())
+    }
+
+    private fun getUser(entry: Path): String {
+        return entry.readText().split(":")[0]
+    }
+
+    private fun getHostname(entry: Path): String {
+        return entry.readText().split(":")[1]
     }
 }
