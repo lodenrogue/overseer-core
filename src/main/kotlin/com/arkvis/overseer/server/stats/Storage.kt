@@ -1,6 +1,6 @@
 package com.arkvis.overseer.server.stats
 
-data class StorageDetails(
+data class Storage(
     val size: String,
     val used: String,
     val available: String,

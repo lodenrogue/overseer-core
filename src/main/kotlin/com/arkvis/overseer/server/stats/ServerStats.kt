@@ -4,19 +4,19 @@ import com.arkvis.overseer.server.CommandBuilder
 
 class ServerStats(user: String, hostname: String, commandBuilder: CommandBuilder) {
 
-    val storageDetails: StorageDetails
+    val storage: Storage
 
     init {
         val commands = arrayOf("ssh", "$user@$hostname", "PATH=\$PATH:/home/$user/bin; stats")
         val command = commandBuilder.build(commands)
         command.run()
 
-        storageDetails = if (command.getStatusCode() != 0) {
+        storage = if (command.getStatusCode() != 0) {
             println(command.getStdErr())
-            StorageDetails("", "", "", "")
+            Storage("", "", "", "")
         } else {
             val output = command.getStdOut()
-            StorageDetails(
+            Storage(
                 getStorageSize(output),
                 getStorageUsed(output),
                 getStorageAvailable(output),
