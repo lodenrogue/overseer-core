@@ -20,4 +20,11 @@ class MemoryTest {
         val memory = server.getStats().memory
         assertEquals("742Mi", memory.used)
     }
+
+    @Test
+    fun testAvailable() {
+        val server = Server("user", "localhost", TestCommandBuilder())
+        val memory = server.getStats().memory
+        assertEquals("3.0Gi", memory.available)
+    }
 }

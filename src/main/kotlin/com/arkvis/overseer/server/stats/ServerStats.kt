@@ -20,12 +20,13 @@ class ServerStats(user: String, hostname: String, commandBuilder: CommandBuilder
     private fun getMemory(command: Command): Memory {
         return if (command.getStatusCode() != 0) {
             println(command.getStdErr())
-            Memory("", "")
+            Memory("", "", "")
         } else {
             val output = command.getStdOut()
             Memory(
                 getMemoryTotal(output),
-                getMemoryUsed(output)
+                getMemoryUsed(output),
+                getMemoryAvailable(output)
             )
         }
     }
@@ -36,6 +37,10 @@ class ServerStats(user: String, hostname: String, commandBuilder: CommandBuilder
 
     private fun getMemoryUsed(output: String): String {
         return getMemoryValue(output, 2)
+    }
+
+    private fun getMemoryAvailable(output: String): String {
+        return getMemoryValue(output, 3)
     }
 
     private fun getMemoryValue(output: String, index: Int): String {
